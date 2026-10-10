@@ -1,0 +1,153 @@
+/* ==========================================================================
+   Floating Social Media Connection Panel
+   ========================================================================== */
+
+.social-floating-container {
+  position: fixed;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 990;
+  pointer-events: none;
+}
+
+.social-floating-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  pointer-events: auto;
+}
+
+/* Base button styling */
+.social-floating-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.25s ease,
+              filter 0.25s ease;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.social-floating-btn:hover {
+  transform: scale(1.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+}
+
+.social-floating-btn:focus-visible {
+  outline: 2.5px solid #f59e0b;
+  outline-offset: 3px;
+  transform: scale(1.08);
+}
+
+.social-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Official Social Media Color Gradients */
+.social-btn--whatsapp {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+}
+
+.social-btn--instagram {
+  background: radial-gradient(
+    circle at 30% 107%,
+    #fdf497 0%,
+    #fdf497 5%,
+    #fd5949 45%,
+    #d6249f 60%,
+    #285AEB 90%
+  );
+}
+
+.social-btn--facebook {
+  background: linear-gradient(135deg, #1877F2 0%, #0B53B2 100%);
+}
+
+/* Tooltip Styling (Desktop) */
+.social-tooltip {
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-6px);
+  background: #0f172a;
+  color: #ffffff;
+  padding: 7px 13px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  font-family: inherit;
+  z-index: 1000;
+}
+
+/* Arrow pointing towards the icon */
+.social-tooltip::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #0f172a transparent transparent;
+}
+
+/* Show Tooltip on Hover & Focus */
+.social-floating-btn:hover .social-tooltip,
+.social-floating-btn:focus-visible .social-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .social-floating-container {
+    left: 12px;
+    top: auto;
+    bottom: 24px;
+    transform: none;
+  }
+
+  .social-floating-panel {
+    gap: 10px;
+  }
+
+  .social-floating-btn {
+    width: 40px;
+    height: 40px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Disable hover tooltips on touch screens to prevent interference */
+  .social-tooltip {
+    display: none !important;
+  }
+}
+
+/* Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  .social-floating-btn,
+  .social-tooltip {
+    transition: none !important;
+  }
+}

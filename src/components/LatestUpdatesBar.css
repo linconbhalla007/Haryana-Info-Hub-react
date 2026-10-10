@@ -1,0 +1,224 @@
+/* ==========================================================================
+   Latest Updates / ताज़ा अपडेट Notification Bar
+   ========================================================================== */
+
+.latest-updates-wrapper {
+  margin-bottom: 24px;
+}
+
+.latest-updates-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1.5px solid #e2e8f0;
+  border-left: 4px solid #f59e0b;
+  border-radius: 12px;
+  padding: 10px 16px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.latest-updates-bar:hover {
+  border-color: #cbd5e1;
+  border-left-color: #d97706;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.07);
+}
+
+/* Left Brand Badge & Bell Icon */
+.latest-updates-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.latest-updates-bell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+.latest-updates-bell svg {
+  animation: bellRing 3s ease-in-out infinite;
+}
+
+.latest-updates-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.latest-updates-new-tag {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: pulseNew 2s ease-in-out infinite;
+}
+
+/* Main Content Area */
+.latest-updates-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.latest-updates-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+}
+
+.latest-updates-item:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.latest-updates-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease;
+}
+
+.latest-updates-item:hover .latest-updates-title {
+  color: #1e3a8a;
+  text-decoration: underline;
+}
+
+.latest-updates-desc {
+  font-size: 13px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.latest-updates-date {
+  font-size: 12px;
+  color: #94a3b8;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Controls / Navigation Right Side */
+.latest-updates-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.latest-updates-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.latest-updates-nav-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.latest-updates-nav-btn:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+.latest-updates-counter {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+/* Animations */
+@keyframes bellRing {
+  0%, 100% { transform: rotate(0deg); }
+  10%, 30% { transform: rotate(14deg); }
+  20%, 40% { transform: rotate(-14deg); }
+  50% { transform: rotate(0deg); }
+}
+
+@keyframes pulseNew {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .latest-updates-bar {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .latest-updates-head {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .latest-updates-body {
+    width: 100%;
+  }
+
+  .latest-updates-title {
+    font-size: 13.5px;
+  }
+
+  .latest-updates-desc {
+    display: none;
+  }
+
+  .latest-updates-actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: -4px;
+  }
+}
