@@ -135,6 +135,24 @@
   box-shadow: 0 4px 12px rgba(255, 138, 0, 0.15);
 }
 
+.site-footer__social-btn--facebook:hover {
+  border-color: #1877f2;
+  color: #1877f2;
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.25);
+}
+
+.site-footer__social-btn--instagram:hover {
+  border-color: #e1306c;
+  color: #e1306c;
+  box-shadow: 0 4px 12px rgba(225, 48, 108, 0.25);
+}
+
+.site-footer__social-btn--whatsapp:hover {
+  border-color: #25d366;
+  color: #25d366;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+}
+
 /* Column Headings - Size 18px, Weight 700, margin-bottom 20px */
 .footer-column h3,
 .footer-column h4,

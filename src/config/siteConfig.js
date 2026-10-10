@@ -19,8 +19,9 @@ export const siteConfig = {
   developedBy: 'GoDude Software Pvt Ltd.',
   developedByUrl: '#',
 
-  facebookUrl: 'https://facebook.com',
-  whatsappUrl: 'https://wa.me/910000000000',
+  facebookUrl: 'https://www.facebook.com/share/14rcxHav6Ty/',
+  instagramUrl: 'https://www.instagram.com/haryana_information_hub',
+  whatsappUrl: 'https://whatsapp.com/channel/0029VaA7xlrLCoX78zKyhy30',
   twitterUrl: 'https://x.com',
 
   officeHours: 'सोमवार – शनिवार | 10:00 AM – 06:00 PM',

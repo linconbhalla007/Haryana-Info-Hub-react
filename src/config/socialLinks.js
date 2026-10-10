@@ -8,11 +8,11 @@ export const SOCIAL_CONNECT_LINKS = {
   // Official WhatsApp Channel / Group URL
   whatsappGroup: 'https://whatsapp.com/channel/0029VaA7xlrLCoX78zKyhy30',
 
-  // Official Instagram Page URL — REPLACE WITH YOUR REAL INSTAGRAM URL
-  instagram: 'https://instagram.com/your_instagram_handle',
+  // Official Instagram Page URL
+  instagram: 'https://www.instagram.com/haryana_information_hub',
 
-  // Official Facebook Page URL — REPLACE WITH YOUR REAL FACEBOOK URL
-  facebook: 'https://facebook.com/your_facebook_page',
+  // Official Facebook Page URL
+  facebook: 'https://www.facebook.com/share/14rcxHav6Ty/',
 };
 
 export default SOCIAL_CONNECT_LINKS;
