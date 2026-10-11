@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import HeroBanner from "../components/HeroBanner.jsx";
 import SectionCard from "../components/SectionCard.jsx";
-import SocialConnectFloating from "../components/SocialConnectFloating.jsx";
+import SocialConnectBar from "../components/SocialConnectBar.jsx";
 import LatestUpdatesBar from "../components/LatestUpdatesBar.jsx";
 import { getPublicHomepageSections } from "../services/homepageSectionService.js";
 import "./pages.css";
@@ -48,10 +48,12 @@ function Home({ onDevClick }) {
 
   return (
     <>
-      <SocialConnectFloating />
       <HeroBanner />
 
       <section className="section container">
+        {/* Social Media Links Bar (Static on the Right Side) */}
+        <SocialConnectBar />
+
         {/* Latest Updates / ताज़ा अपडेट Notification Bar */}
         <LatestUpdatesBar />
 

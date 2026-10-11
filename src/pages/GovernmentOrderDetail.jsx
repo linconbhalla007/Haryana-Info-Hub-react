@@ -126,7 +126,7 @@ function GovernmentOrderDetail() {
 
           <div className="detail-section">
             <h2>PDF दस्तावेज़</h2>
-            <PDFViewer src={order.pdf} title={order.title} />
+            <PDFViewer src={order.pdf} title={order.title} orderId={order.id} />
           </div>
         </div>
       </div>

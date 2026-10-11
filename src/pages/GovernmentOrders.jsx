@@ -3,6 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { getGovernmentOrders } from '../services/publicGovernmentOrderService.js';
 import EmptyState from '../components/EmptyState.jsx';
 import ListToolbar from '../components/ListToolbar.jsx';
+import Toast from '../components/Toast.jsx';
+import { downloadOrderPdf } from '../utils/downloadHelper.js';
 import './pages.css';
 import './GovernmentOrders.css';
 
@@ -23,6 +25,8 @@ function GovernmentOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState('');
+  const [downloadingId, setDownloadingId] = useState(null);
+  const [toast, setToast] = useState(null);
   const ITEMS_PER_PAGE = 15;
 
   const fetchOrders = (pageToFetch) => {
@@ -73,7 +77,6 @@ function GovernmentOrders() {
     <>
       <div className="page-header">
         <div className="container">
-          <span className="eyebrow">आधिकारिक दस्तावेज़</span>
           <h1 className="page-header__title">सरकारी आदेश एवं निर्देश</h1>
           <p className="page-header__desc">
             विभिन्न विभागों द्वारा जारी नए एवं पुराने सरकारी आदेश और निर्देश यहां देखें।
@@ -160,15 +163,45 @@ function GovernmentOrders() {
                         विवरण देखें
                       </Link>
                       {order.pdf && (
-                        <a
-                          href={order.pdf}
-                          download
+                        <button
+                          type="button"
+                          disabled={downloadingId === order.id}
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            setDownloadingId(order.id);
+                            setToast(null);
+                            try {
+                              await downloadOrderPdf(order.id, order.title, order.pdf);
+                              setToast({ type: 'success', message: 'PDF सफलतापूर्वक डाउनलोड हो गई।' });
+                            } catch (err) {
+                              setToast({ type: 'error', message: err.message || 'डाउनलोड विफल रहा।' });
+                            } finally {
+                              setDownloadingId(null);
+                            }
+                          }}
                           className="btn btn-green btn-sm"
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            cursor: downloadingId === order.id ? 'wait' : 'pointer'
+                          }}
                         >
-                          PDF डाउनलोड करें
-                        </a>
+                          {downloadingId === order.id && (
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                width: '12px',
+                                height: '12px',
+                                border: '2px solid rgba(255,255,255,0.3)',
+                                borderTopColor: '#ffffff',
+                                borderRadius: '50%',
+                                animation: 'spin 0.8s linear infinite'
+                              }}
+                            />
+                          )}
+                          <span>{downloadingId === order.id ? 'डाउनलोड हो रहा है...' : 'PDF डाउनलोड करें'}</span>
+                        </button>
                       )}
                     </div>
                   </div>
@@ -201,6 +234,8 @@ function GovernmentOrders() {
           )}
         </div>
       )}
+
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </>
   );
 }
