@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getLatestNotifications } from '../services/notificationService.js';
 import './LatestUpdatesBar.css';
@@ -7,9 +7,14 @@ export function LatestUpdatesBar({ initialItems = null }) {
   const [rawItems, setRawItems] = useState(initialItems || []);
   const [loading, setLoading] = useState(initialItems === null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [tickerKey, setTickerKey] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState(600);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
   const navigate = useNavigate();
-  const timerRef = useRef(null);
+  const viewportRef = useRef(null);
+  const itemRef = useRef(null);
 
   // Fetch notifications on mount if not provided as prop
   useEffect(() => {
@@ -33,6 +38,17 @@ export function LatestUpdatesBar({ initialItems = null }) {
     };
   }, [initialItems]);
 
+  // Check prefers-reduced-motion media query for accessibility
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mql.matches);
+
+    const handler = (e) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+
   // Filter active/enabled notifications and sort by newest first
   const activeItems = useMemo(() => {
     if (!Array.isArray(rawItems)) return [];
@@ -41,37 +57,90 @@ export function LatestUpdatesBar({ initialItems = null }) {
       .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   }, [rawItems]);
 
-  // Auto-rotation timer for multiple notification items
+  // Keep currentIndex bounded if items list changes
   useEffect(() => {
-    if (activeItems.length <= 1 || isPaused) {
-      if (timerRef.current) clearInterval(timerRef.current);
-      return;
+    if (activeItems.length > 0 && currentIndex >= activeItems.length) {
+      setCurrentIndex(0);
+      setTickerKey((k) => k + 1);
     }
+  }, [activeItems.length, currentIndex]);
 
-    timerRef.current = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % activeItems.length);
-    }, 5000);
+  // Measure viewport container width dynamically on mount and resize
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
 
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+    const measure = () => {
+      if (el) {
+        setViewportWidth(el.offsetWidth || 600);
+      }
     };
-  }, [activeItems.length, isPaused]);
+    measure();
+
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(el);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  const currentItem = activeItems[currentIndex] || activeItems[0];
+
+  // Calculate approximate duration based on content length & viewport width
+  // Speed is kept constant at ~65px/sec for comfortable, clear reading
+  const dynamicDuration = useMemo(() => {
+    if (!currentItem) return 14;
+    const titleLen = currentItem.title?.length || 0;
+    const descLen = currentItem.description?.length || 0;
+    const estimatedTextWidth = Math.max(250, titleLen * 9.5 + descLen * 8.5 + 40);
+    const totalDistance = (viewportWidth || 600) + estimatedTextWidth + 48;
+    return Math.max(9, Math.round((totalDistance / 65) * 10) / 10);
+  }, [currentItem, viewportWidth]);
+
+  // Refine exact duration and variables on DOM layout before paint
+  useLayoutEffect(() => {
+    if (!itemRef.current || !viewportRef.current) return;
+    const vWidth = viewportRef.current.offsetWidth || viewportWidth || 600;
+    const tWidth = itemRef.current.scrollWidth || 300;
+    const exactDistance = vWidth + tWidth + 48;
+    const exactDuration = Math.max(9, Math.round((exactDistance / 65) * 10) / 10);
+
+    itemRef.current.style.setProperty('--viewport-width', `${vWidth}px`);
+    itemRef.current.style.setProperty('--ticker-duration', `${exactDuration}s`);
+  }, [tickerKey, currentIndex, viewportWidth]);
+
+  // Handle animation end: smoothly advance to the next notification
+  const handleAnimationEnd = () => {
+    if (activeItems.length <= 0) return;
+    setCurrentIndex((prev) => (prev + 1) % activeItems.length);
+    setTickerKey((k) => k + 1);
+  };
+
+  // For prefers-reduced-motion users, fall back to stationary timer rotation
+  useEffect(() => {
+    if (!prefersReducedMotion || activeItems.length <= 1 || isPaused) return;
+
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % activeItems.length);
+      setTickerKey((k) => k + 1);
+    }, 6000);
+
+    return () => clearInterval(timer);
+  }, [prefersReducedMotion, activeItems.length, isPaused]);
 
   // If loading or no active notifications exist, hide completely
   if (loading || activeItems.length === 0) {
     return null;
   }
 
-  const currentItem = activeItems[currentIndex] || activeItems[0];
-
   const handleNext = (e) => {
     e.stopPropagation();
     setCurrentIndex((prev) => (prev + 1) % activeItems.length);
+    setTickerKey((k) => k + 1);
   };
 
   const handlePrev = (e) => {
     e.stopPropagation();
     setCurrentIndex((prev) => (prev - 1 + activeItems.length) % activeItems.length);
+    setTickerKey((k) => k + 1);
   };
 
   const handleItemClick = () => {
@@ -106,14 +175,10 @@ export function LatestUpdatesBar({ initialItems = null }) {
     <div className="latest-updates-wrapper">
       <div
         className="latest-updates-bar"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-        onFocus={() => setIsPaused(true)}
-        onBlur={() => setIsPaused(false)}
         role="region"
         aria-label="Latest Updates Notification"
       >
-        {/* Left Badge & Bell Icon */}
+        {/* Left Badge & Bell Icon (Stationary) */}
         <div className="latest-updates-head">
           <div className="latest-updates-bell" aria-hidden="true">
             <svg
@@ -138,14 +203,29 @@ export function LatestUpdatesBar({ initialItems = null }) {
           {isRecent && <span className="latest-updates-new-tag">नया</span>}
         </div>
 
-        {/* Main Content Item */}
-        <div className="latest-updates-body">
+        {/* Center Area: Continuous Horizontal Marquee Ticker Viewport */}
+        <div
+          className="latest-updates-body"
+          ref={viewportRef}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
           <button
+            key={tickerKey}
+            ref={itemRef}
             type="button"
             className="latest-updates-item"
             onClick={handleItemClick}
+            onAnimationEnd={handleAnimationEnd}
+            onFocus={() => setIsPaused(true)}
+            onBlur={() => setIsPaused(false)}
             disabled={!currentItem.link}
             title={currentItem.link ? `खोलें: ${currentItem.title}` : currentItem.title}
+            style={{
+              '--viewport-width': `${viewportWidth}px`,
+              '--ticker-duration': `${dynamicDuration}s`,
+              animationPlayState: isPaused ? 'paused' : 'running',
+            }}
           >
             <span className="latest-updates-title">{currentItem.title}</span>
             {currentItem.description && (
@@ -154,7 +234,7 @@ export function LatestUpdatesBar({ initialItems = null }) {
           </button>
         </div>
 
-        {/* Date & Navigation Controls */}
+        {/* Date & Navigation Controls (Stationary) */}
         <div className="latest-updates-actions">
           {formattedDate && (
             <span className="latest-updates-date">{formattedDate}</span>

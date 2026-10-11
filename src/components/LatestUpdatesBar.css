@@ -78,21 +78,24 @@
   animation: pulseNew 2s ease-in-out infinite;
 }
 
-/* Main Content Area */
+/* Main Content Area - Viewport for Continuous Marquee Ticker */
 .latest-updates-body {
   flex: 1;
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 12px;
+  overflow: hidden;
+  position: relative;
+  white-space: nowrap;
 }
 
 .latest-updates-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
-  min-width: 0;
-  width: 100%;
+  flex-shrink: 0;
+  width: max-content;
+  white-space: nowrap;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
@@ -101,6 +104,22 @@
   padding: 0;
   text-align: left;
   font-family: inherit;
+  will-change: transform;
+  animation-name: tickerMarquee;
+  animation-duration: var(--ticker-duration, 14s);
+  animation-timing-function: linear;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+.latest-updates-item:disabled {
+  cursor: default;
+}
+
+/* Pause on hover over the scrolling text area or keyboard focus */
+.latest-updates-body:hover .latest-updates-item,
+.latest-updates-item:focus-visible {
+  animation-play-state: paused !important;
 }
 
 .latest-updates-item:focus-visible {
@@ -114,12 +133,11 @@
   font-weight: 600;
   color: #0f172a;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   transition: color 0.2s ease;
+  flex-shrink: 0;
 }
 
-.latest-updates-item:hover .latest-updates-title {
+.latest-updates-item:not(:disabled):hover .latest-updates-title {
   color: #1e3a8a;
   text-decoration: underline;
 }
@@ -128,8 +146,7 @@
   font-size: 13px;
   color: #64748b;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex-shrink: 0;
 }
 
 .latest-updates-date {
@@ -179,6 +196,15 @@
 }
 
 /* Animations */
+@keyframes tickerMarquee {
+  0% {
+    transform: translateX(calc(var(--viewport-width, 800px) + 24px));
+  }
+  100% {
+    transform: translateX(calc(-100% - 24px));
+  }
+}
+
 @keyframes bellRing {
   0%, 100% { transform: rotate(0deg); }
   10%, 30% { transform: rotate(14deg); }
@@ -189,6 +215,21 @@
 @keyframes pulseNew {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.85; transform: scale(1.05); }
+}
+
+/* Accessibility: Respect Reduced Motion Preference */
+@media (prefers-reduced-motion: reduce) {
+  .latest-updates-item {
+    animation: none !important;
+    transform: none !important;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .latest-updates-bell svg,
+  .latest-updates-new-tag {
+    animation: none !important;
+  }
 }
 
 /* Mobile Responsive */
@@ -206,6 +247,7 @@
 
   .latest-updates-body {
     width: 100%;
+    min-height: 24px;
   }
 
   .latest-updates-title {
@@ -213,7 +255,7 @@
   }
 
   .latest-updates-desc {
-    display: none;
+    font-size: 12.5px;
   }
 
   .latest-updates-actions {
