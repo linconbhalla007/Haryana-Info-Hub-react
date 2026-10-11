@@ -65,18 +65,7 @@ function Home({ onDevClick }) {
         </div>
 
         <div className="home-cards-grid">
-          {/* Card 1: Departmental Exams Study Material */}
-          <SectionCard
-            to="/news"
-            accent="navy"
-            title="विभागीय परीक्षा संबंधित अध्ययन सामग्री"
-            items={["परीक्षा पाठ्यक्रम / Syllabus", "पिछले वर्षों के प्रश्न पत्र", "अध्ययन नोट्स / Study Notes"]}
-            buttonLabel="View Study Material"
-            icon={<NewsIcon />}
-            onClick={() => onDevClick && onDevClick("विभागीय परीक्षा संबंधित अध्ययन सामग्री")}
-          />
-
-          {/* Card 2: Government Orders & Directives */}
+          {/* Card 1: Government Orders & Directives (Order 1) */}
           <SectionCard
             to="/government-orders"
             accent="green"
@@ -86,7 +75,7 @@ function Home({ onDevClick }) {
             icon={<OrderIcon />}
           />
 
-          {/* Card 3: Recruitment & Careers */}
+          {/* Card 2: Recruitment & Careers (Order 2) */}
           <SectionCard
             to="/jobs"
             accent="saffron"
@@ -96,7 +85,7 @@ function Home({ onDevClick }) {
             icon={<JobIcon />}
           />
 
-          {/* Card 4: Treasury / E-Salary / HRMS Info */}
+          {/* Card 3: Treasury / E-Salary / HRMS Info (Order 3) */}
           <SectionCard
             to="/schemes"
             accent="navy"
@@ -107,7 +96,7 @@ function Home({ onDevClick }) {
             onClick={() => onDevClick && onDevClick("Treasury / e-Salary / HRMS संबंधित जानकारी")}
           />
 
-          {/* Card 5: Useful Employee Forms & Files */}
+          {/* Card 4: Useful Employee Forms & Files (Order 4) */}
           <SectionCard
             to="/proforma-files"
             accent="green"
@@ -116,6 +105,33 @@ function Home({ onDevClick }) {
             buttonLabel="View Proformas"
             icon={<FileIcon />}
             onClick={() => onDevClick && onDevClick("सरकारी कर्मचारियों के उपयोगी प्रोफॉर्मा एवं फाइलें")}
+          />
+
+          {/* Card 5: Departmental Exams Study Material (Order 5) */}
+          <SectionCard
+            to="/news"
+            accent="navy"
+            title="विभागीय परीक्षा संबंधित अध्ययन सामग्री"
+            items={["परीक्षा पाठ्यक्रम / Syllabus", "पिछले वर्षों के प्रश्न पत्र", "अध्ययन नोट्स / Study Notes"]}
+            buttonLabel="View Study Material"
+            icon={<NewsIcon />}
+            onClick={() => onDevClick && onDevClick("विभागीय परीक्षा संबंधित अध्ययन सामग्री")}
+          />
+
+          {/* Card 6: HSSC Exam Study Material (Order 6 - New) */}
+          <SectionCard
+            to="/hssc-study-material"
+            accent="saffron"
+            title="HSSC परीक्षा अध्ययन सामग्री"
+            items={[
+              "HSSC परीक्षा पाठ्यक्रम",
+              "पिछले वर्षों के प्रश्नपत्र",
+              "मॉडल पेपर एवं मॉक टेस्ट",
+              "हरियाणा सामान्य ज्ञान एवं करंट अफेयर्स",
+            ]}
+            buttonLabel="HSSC अध्ययन सामग्री देखें"
+            icon={<HSSCIcon />}
+            onClick={() => onDevClick && onDevClick("HSSC परीक्षा अध्ययन सामग्री")}
           />
         </div>
       </section>
@@ -284,6 +300,32 @@ function FileIcon() {
       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="white" strokeWidth="1.7" />
       <path d="M14 2v6h6" stroke="white" strokeWidth="1.7" />
       <path d="M16 13H8M16 17H8M10 9H8" stroke="white" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function HSSCIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M12 3L2 8l10 5 10-5-10-5z"
+        stroke="white"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6 10.5v5.5c0 2 2.7 3.5 6 3.5s6-1.5 6-3.5v-5.5"
+        stroke="white"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+      <path
+        d="M22 8v6"
+        stroke="white"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

@@ -40,11 +40,15 @@
 .section-card__title {
   font-size: 19px;
   margin-bottom: 12px;
+  min-height: 52px;
+  display: flex;
+  align-items: flex-start;
 }
 
 .section-card__list {
   flex: 1;
   margin-bottom: 18px;
+  min-height: 115px;
 }
 
 .section-card__list li {
