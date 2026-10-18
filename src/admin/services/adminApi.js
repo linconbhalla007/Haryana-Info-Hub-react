@@ -313,7 +313,82 @@ export async function getHomepageSectionsPublic() {
   return { success: true, data: [] };
 }
 
+/**
+ * 12. Get Employee Proformas with server-side pagination
+ * GET /api/proformas?page=1&limit=15
+ */
+export async function getEmployeeProformas(page = 1, limit = 15) {
+  const result = await apiFetch(
+    `/api/proformas?page=${page}&limit=${limit}`,
+    { method: "GET" },
+  );
+
+  if (result && Array.isArray(result.data) && result.pagination) {
+    return {
+      data: result.data,
+      pagination: result.pagination,
+      count: result.count || result.data.length,
+      success: result.success !== false,
+    };
+  }
+
+  if (Array.isArray(result)) {
+    const total = result.length;
+    const totalPages = Math.ceil(total / limit) || 1;
+    const currPage = Number(page);
+    const start = (currPage - 1) * limit;
+    return {
+      data: result.slice(start, start + limit),
+      pagination: { page: currPage, limit: Number(limit), total, totalPages, hasNextPage: currPage < totalPages, hasPreviousPage: currPage > 1 },
+      count: total,
+      success: true,
+    };
+  }
+
+  return {
+    data: [],
+    pagination: { page: Number(page), limit: Number(limit), total: 0, totalPages: 1, hasNextPage: false, hasPreviousPage: false },
+    count: 0,
+    success: true,
+  };
+}
+
+/**
+ * 13. Create Employee Proforma
+ * POST /api/proformas  (multipart/form-data)
+ */
+export async function createEmployeeProforma(proformaData) {
+  const isFormData = typeof FormData !== "undefined" && proformaData instanceof FormData;
+  return await apiFetch("/api/proformas", {
+    method: "POST",
+    body: isFormData ? proformaData : JSON.stringify(proformaData),
+  });
+}
+
+/**
+ * 14. Update Employee Proforma
+ * PUT /api/proformas/:id
+ */
+export async function updateEmployeeProforma(id, proformaData) {
+  const isFormData = typeof FormData !== "undefined" && proformaData instanceof FormData;
+  return await apiFetch(`/api/proformas/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: isFormData ? proformaData : JSON.stringify(proformaData),
+  });
+}
+
+/**
+ * 15. Delete Employee Proforma
+ * DELETE /api/proformas/:id
+ */
+export async function deleteEmployeeProforma(id) {
+  return await apiFetch(`/api/proformas/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
 export default {
+
   loginAdmin,
   getGovernmentOrders,
   getGovernmentOrder,
@@ -325,4 +400,9 @@ export default {
   updateHomepageSection,
   toggleHomepageSectionEnabled,
   getHomepageSectionsPublic,
+  getEmployeeProformas,
+  createEmployeeProforma,
+  updateEmployeeProforma,
+  deleteEmployeeProforma,
 };
+
