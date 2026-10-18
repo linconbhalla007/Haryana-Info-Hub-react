@@ -354,6 +354,23 @@ export async function getEmployeeProformas(page = 1, limit = 15) {
 }
 
 /**
+ * 12b. Get Single Employee Proforma
+ * GET /api/proformas/:id
+ */
+export async function getEmployeeProforma(id) {
+  const result = await apiFetch(
+    `/api/proformas/${encodeURIComponent(id)}`,
+    {
+      method: "GET",
+    },
+  );
+
+  if (result && result.proforma) return result.proforma;
+  if (result && result.data) return result.data;
+  return result;
+}
+
+/**
  * 13. Create Employee Proforma
  * POST /api/proformas  (multipart/form-data)
  */
@@ -401,6 +418,7 @@ export default {
   toggleHomepageSectionEnabled,
   getHomepageSectionsPublic,
   getEmployeeProformas,
+  getEmployeeProforma,
   createEmployeeProforma,
   updateEmployeeProforma,
   deleteEmployeeProforma,

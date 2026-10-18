@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { downloadOrderPdf } from '../utils/downloadHelper.js';
+import { downloadOrderPdf, downloadProformaPdf } from '../utils/downloadHelper.js';
 import Toast from './Toast.jsx';
 import './PDFViewer.css';
 
@@ -8,7 +8,7 @@ import './PDFViewer.css';
  * rendering is inconsistent on mobile — there we show View/Download
  * buttons instead. Always shows both actions regardless of screen size.
  */
-function PDFViewer({ src, title, orderId }) {
+function PDFViewer({ src, title, orderId, proformaId, onDownload }) {
   const [isMobile, setIsMobile] = useState(
     typeof window !== 'undefined' ? window.innerWidth < 768 : false
   );
@@ -25,12 +25,18 @@ function PDFViewer({ src, title, orderId }) {
 
   const handleDownload = async (e) => {
     e.preventDefault();
-    if (downloading || (!src && !orderId)) return;
+    if (downloading || (!src && !orderId && !proformaId && !onDownload)) return;
     setDownloading(true);
     setToast(null);
 
     try {
-      await downloadOrderPdf(orderId, title, src);
+      if (onDownload) {
+        await onDownload();
+      } else if (proformaId) {
+        await downloadProformaPdf(proformaId, title, src);
+      } else {
+        await downloadOrderPdf(orderId, title, src);
+      }
       setToast({ type: 'success', message: 'PDF सफलतापूर्वक डाउनलोड हो गई।' });
     } catch (err) {
       setToast({ type: 'error', message: err.message || 'PDF डाउनलोड करने में समस्या आई।' });

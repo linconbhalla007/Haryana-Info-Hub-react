@@ -23,7 +23,7 @@ function Footer({ onDevClick }) {
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
       }
-    } else if (["/news", "/schemes", "/departments", "/proforma-files"].includes(link.to)) {
+    } else if (["/news", "/schemes", "/departments"].includes(link.to)) {
       e.preventDefault();
       if (onDevClick) {
         onDevClick(link.label);

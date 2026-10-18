@@ -20,7 +20,7 @@ function Navbar({ mobile = false, onNavigate, onDevClick }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef(null);
 
-  const devLinks = ['/news', '/schemes', '/departments', '/proforma-files'];
+  const devLinks = ['/news', '/schemes', '/departments'];
 
   useEffect(() => {
     function handleClickOutside(e) {

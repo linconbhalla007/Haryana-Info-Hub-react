@@ -15,6 +15,8 @@ import Schemes from './pages/Schemes.jsx';
 import SchemeDetail from './pages/SchemeDetail.jsx';
 import Departments from './pages/Departments.jsx';
 import DepartmentDetail from './pages/DepartmentDetail.jsx';
+import EmployeeProformas from './pages/EmployeeProformas.jsx';
+import EmployeeProformaDetails from './pages/EmployeeProformaDetails.jsx';
 import Search from './pages/Search.jsx';
 import NotFound from './pages/NotFound.jsx';
 import UnderDevelopmentDialog from './components/UnderDevelopmentDialog.jsx';
@@ -104,6 +106,8 @@ function App() {
               <Route path="/schemes/:id" element={<SchemeDetail />} />
               <Route path="/departments" element={<Departments />} />
               <Route path="/departments/:id" element={<DepartmentDetail />} />
+              <Route path="/proforma-files" element={<EmployeeProformas />} />
+              <Route path="/proforma-files/:id" element={<EmployeeProformaDetails />} />
               <Route path="/search" element={<Search />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -104,7 +104,6 @@ function Home({ onDevClick }) {
             items={["Medical Reimbursement", "LTC (Leave Travel Concession)", "GPF / NPS विवरण", "Pension फॉर्म एवं नियम"]}
             buttonLabel="View Proformas"
             icon={<FileIcon />}
-            onClick={() => onDevClick && onDevClick("सरकारी कर्मचारियों के उपयोगी प्रोफॉर्मा एवं फाइलें")}
           />
 
           {/* Card 5: Departmental Exams Study Material (Order 5) */}

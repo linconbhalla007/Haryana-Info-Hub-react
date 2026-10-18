@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import AdminLayout from '../components/AdminLayout.jsx';
 import GovernmentOrderView from '../components/GovernmentOrderView.jsx';
 import GovernmentOrderForm from '../components/GovernmentOrderForm.jsx';
+import EmployeeProformaView from '../components/EmployeeProformaView.jsx';
+import EmployeeProformaForm from '../components/EmployeeProformaForm.jsx';
 import DeleteConfirmModal from '../components/DeleteConfirmModal.jsx';
 import ToastNotification from '../components/ToastNotification.jsx';
 import {
@@ -10,15 +12,22 @@ import {
   createGovernmentOrder,
   updateGovernmentOrder,
   deleteGovernmentOrder,
+  getEmployeeProformas,
+  createEmployeeProforma,
+  updateEmployeeProforma,
+  deleteEmployeeProforma,
 } from '../services/adminApi.js';
 
-function getShortOrderId(id) {
+function getShortId(id) {
   if (!id) return '-';
-  return id.replace(/^order-?/i, '') || id;
+  return id.replace(/^(order|proforma)-?/i, '') || id;
 }
 
 function AdminDashboard() {
-  const [orders, setOrders] = useState([]);
+  // Active dashboard type: 'government_orders' | 'employee_proformas'
+  const [dashboardType, setDashboardType] = useState('government_orders');
+
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -33,7 +42,7 @@ function AdminDashboard() {
   });
 
   // Modals state
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -41,13 +50,16 @@ function AdminDashboard() {
   const [formError, setFormError] = useState('');
   const [toast, setToast] = useState(null);
 
-  const fetchOrders = async (pageToFetch = currentPage) => {
+  const isProforma = dashboardType === 'employee_proformas';
+
+  const fetchItems = async (pageToFetch = currentPage) => {
     setLoading(true);
     setError('');
-    setOrders([]);
+    setItems([]);
     try {
-      const res = await getGovernmentOrders(pageToFetch, 5);
-      setOrders(res.data || []);
+      const fetchApi = isProforma ? getEmployeeProformas : getGovernmentOrders;
+      const res = await fetchApi(pageToFetch, 5);
+      setItems(res.data || []);
       const pageMeta = res.pagination || {
         page: pageToFetch,
         limit: 5,
@@ -65,42 +77,52 @@ function AdminDashboard() {
     }
   };
 
+  // Re-fetch when dashboardType or currentPage changes
   useEffect(() => {
-    fetchOrders(currentPage);
-  }, [currentPage]);
+    fetchItems(currentPage);
+  }, [dashboardType, currentPage]);
+
+  const handleDashboardChange = (e) => {
+    const newType = e.target.value;
+    setDashboardType(newType);
+    setCurrentPage(1);
+    setSelectedItem(null);
+    setIsViewOpen(false);
+    setIsFormOpen(false);
+    setIsDeleteOpen(false);
+  };
 
   // Calculate statistics from actual API response
   const stats = useMemo(() => {
-    const totalOrders = pagination.total;
-    const departmentsSet = new Set(orders.map((o) => o.department || 'Other').filter(Boolean));
+    const totalItems = pagination.total;
+    const departmentsSet = new Set(items.map((o) => o.department || 'Other').filter(Boolean));
     const totalDepartments = departmentsSet.size;
 
     // Find latest date & recent count
-    let latestOrderDate = 'N/A';
-    if (orders.length > 0) {
-      // Sort orders descending
-      const sorted = [...orders].sort((a, b) => {
+    let latestDate = 'N/A';
+    if (items.length > 0) {
+      const sorted = [...items].sort((a, b) => {
         const timeA = new Date(a.date).getTime() || 0;
         const timeB = new Date(b.date).getTime() || 0;
         return timeB - timeA;
       });
-      latestOrderDate = sorted[0].date || 'N/A';
+      latestDate = sorted[0].date || 'N/A';
     }
 
-    const recentOrders = orders.length;
+    const recentCount = items.length;
 
     return {
-      totalOrders,
-      recentOrders,
-      latestOrderDate,
+      totalItems,
+      recentCount,
+      latestDate,
       totalDepartments,
     };
-  }, [orders, pagination.total]);
+  }, [items, pagination.total]);
 
   // Department distribution for chart
   const departmentChartData = useMemo(() => {
     const counts = {};
-    orders.forEach((o) => {
+    items.forEach((o) => {
       const dept = o.departmentHindi || o.department || 'अन्य';
       counts[dept] = (counts[dept] || 0) + 1;
     });
@@ -112,31 +134,22 @@ function AdminDashboard() {
       count,
       percentage: Math.round((count / maxCount) * 100),
     }));
-  }, [orders]);
-
-  // Recent orders list for table
-  const recentOrdersList = orders;
+  }, [items]);
 
   // Handlers
-  const handleOpenView = (order) => {
-    setSelectedOrder(order);
+  const handleOpenView = (item) => {
+    setSelectedItem(item);
     setIsViewOpen(true);
   };
 
-  const handleOpenEdit = (order) => {
-    setSelectedOrder(order);
+  const handleOpenEdit = (item) => {
+    setSelectedItem(item);
     setFormError('');
     setIsFormOpen(true);
   };
 
-  const handleOpenAdd = () => {
-    setSelectedOrder(null);
-    setFormError('');
-    setIsFormOpen(true);
-  };
-
-  const handleOpenDelete = (order) => {
-    setSelectedOrder(order);
+  const handleOpenDelete = (item) => {
+    setSelectedItem(item);
     setIsDeleteOpen(true);
   };
 
@@ -144,19 +157,33 @@ function AdminDashboard() {
     setActionLoading(true);
     setFormError('');
     try {
-      if (selectedOrder) {
-        await updateGovernmentOrder(selectedOrder.id, formData);
-        setToast({ type: 'success', message: 'Government order updated successfully!' });
+      if (isProforma) {
+        if (selectedItem) {
+          await updateEmployeeProforma(selectedItem.id, formData);
+          setToast({ type: 'success', message: 'Employee proforma updated successfully!' });
+        } else {
+          const res = await createEmployeeProforma(formData);
+          const newId = res?.data?.id || res?.id || res?.data?._id || '';
+          setToast({
+            type: 'success',
+            message: `Employee proforma created successfully! ${newId ? `(ID: ${newId})` : ''}`,
+          });
+        }
       } else {
-        const res = await createGovernmentOrder(formData);
-        const newId = res?.data?.id || res?.id || res?.data?._id || '';
-        setToast({
-          type: 'success',
-          message: `Government order created successfully! ${newId ? `(ID: ${newId})` : ''}`,
-        });
+        if (selectedItem) {
+          await updateGovernmentOrder(selectedItem.id, formData);
+          setToast({ type: 'success', message: 'Government order updated successfully!' });
+        } else {
+          const res = await createGovernmentOrder(formData);
+          const newId = res?.data?.id || res?.id || res?.data?._id || '';
+          setToast({
+            type: 'success',
+            message: `Government order created successfully! ${newId ? `(ID: ${newId})` : ''}`,
+          });
+        }
       }
       setIsFormOpen(false);
-      fetchOrders(currentPage);
+      fetchItems(currentPage);
     } catch (err) {
       setFormError(err.message || 'Operation failed. Please check inputs.');
     } finally {
@@ -165,21 +192,26 @@ function AdminDashboard() {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!selectedOrder) return;
+    if (!selectedItem) return;
     setActionLoading(true);
     try {
-      await deleteGovernmentOrder(selectedOrder.id);
-      setToast({ type: 'success', message: 'Government order deleted successfully!' });
+      if (isProforma) {
+        await deleteEmployeeProforma(selectedItem.id);
+        setToast({ type: 'success', message: 'Employee proforma deleted successfully!' });
+      } else {
+        await deleteGovernmentOrder(selectedItem.id);
+        setToast({ type: 'success', message: 'Government order deleted successfully!' });
+      }
       setIsDeleteOpen(false);
 
-      const targetPage = orders.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage;
+      const targetPage = items.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage;
       if (targetPage !== currentPage) {
         setCurrentPage(targetPage);
       } else {
-        fetchOrders(targetPage);
+        fetchItems(targetPage);
       }
     } catch (err) {
-      setToast({ type: 'error', message: err.message || 'Failed to delete order.' });
+      setToast({ type: 'error', message: err.message || 'Failed to delete record.' });
     } finally {
       setActionLoading(false);
     }
@@ -191,20 +223,64 @@ function AdminDashboard() {
 
       <div className="admin-page-header">
         <div className="admin-page-header__info">
-          <h1>Dashboard Overview</h1>
+          <h1>
+            Dashboard Overview — {isProforma ? 'Employee Proforma' : 'Government Order'}
+          </h1>
           <p>Real-time analytics and management summary for Haryana Info Hub.</p>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={handleOpenAdd}>
-          + Add Government Order
-        </button>
+
+        {/* Dashboard Switcher Dropdown */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label htmlFor="dashboard-select" style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
+            Section:
+          </label>
+          <div style={{ position: 'relative' }}>
+            <select
+              id="dashboard-select"
+              value={dashboardType}
+              onChange={handleDashboardChange}
+              style={{
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                background: '#ffffff',
+                border: '1.5px solid #cbd5e1',
+                borderRadius: '8px',
+                padding: '9px 36px 9px 14px',
+                fontSize: '14px',
+                fontWeight: 700,
+                color: '#0f172a',
+                cursor: 'pointer',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                outline: 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s',
+              }}
+            >
+              <option value="government_orders">Government Order</option>
+              <option value="employee_proformas">Employee Proforma</option>
+            </select>
+            <span
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                pointerEvents: 'none',
+                color: '#64748b',
+                fontSize: '11px',
+              }}
+            >
+              ▼
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Top 4 Summary Cards */}
       <div className="admin-stats-grid">
         <div className="admin-stat-card">
           <div className="admin-stat-card__info">
-            <h3>Total Orders</h3>
-            <div className="admin-stat-card__value">{loading ? '...' : stats.totalOrders}</div>
+            <h3>{isProforma ? 'Total Proformas' : 'Total Orders'}</h3>
+            <div className="admin-stat-card__value">{loading ? '...' : stats.totalItems}</div>
             <div className="admin-stat-card__subtext">Live Mongo records</div>
           </div>
           <div className="admin-stat-card__icon admin-stat-card__icon--saffron">
@@ -217,8 +293,8 @@ function AdminDashboard() {
 
         <div className="admin-stat-card">
           <div className="admin-stat-card__info">
-            <h3>Recent Orders</h3>
-            <div className="admin-stat-card__value">{loading ? '...' : stats.recentOrders}</div>
+            <h3>{isProforma ? 'Recent Proformas' : 'Recent Orders'}</h3>
+            <div className="admin-stat-card__value">{loading ? '...' : stats.recentCount}</div>
             <div className="admin-stat-card__subtext">Top recent entries</div>
           </div>
           <div className="admin-stat-card__icon admin-stat-card__icon--blue">
@@ -231,9 +307,9 @@ function AdminDashboard() {
 
         <div className="admin-stat-card">
           <div className="admin-stat-card__info">
-            <h3>Latest Order Date</h3>
+            <h3>{isProforma ? 'Latest Proforma Date' : 'Latest Order Date'}</h3>
             <div className="admin-stat-card__value" style={{ fontSize: '18px', paddingTop: '4px' }}>
-              {loading ? '...' : stats.latestOrderDate}
+              {loading ? '...' : stats.latestDate}
             </div>
             <div className="admin-stat-card__subtext">Most recent publish</div>
           </div>
@@ -263,11 +339,16 @@ function AdminDashboard() {
       </div>
 
       <div className="admin-dashboard-two-col">
-        {/* Recent Orders Table */}
+        {/* Recent Items Table */}
         <div className="admin-card">
           <div className="admin-card__header">
-            <h2 className="admin-card__title">Recent Government Orders</h2>
-            <Link to="/admin/government-orders" style={{ fontSize: '13px', color: 'var(--saffron-600)', fontWeight: 600 }}>
+            <h2 className="admin-card__title">
+              {isProforma ? 'Recent Employee Proformas' : 'Recent Government Orders'}
+            </h2>
+            <Link
+              to={isProforma ? '/admin/employee-proformas' : '/admin/government-orders'}
+              style={{ fontSize: '13px', color: 'var(--saffron-600)', fontWeight: 600 }}
+            >
               Manage All →
             </Link>
           </div>
@@ -284,9 +365,9 @@ function AdminDashboard() {
                 <div>{error}</div>
               </div>
             </div>
-          ) : recentOrdersList.length === 0 ? (
+          ) : items.length === 0 ? (
             <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
-              No government orders available.
+              {isProforma ? 'No employee proformas available.' : 'No government orders available.'}
             </div>
           ) : (
             <>
@@ -294,31 +375,31 @@ function AdminDashboard() {
                 <table className="admin-table">
                   <thead>
                     <tr>
-                      <th>Order ID</th>
+                      <th>{isProforma ? 'Proforma ID' : 'Order ID'}</th>
                       <th>Title</th>
                       <th>Department</th>
-                      <th>Order No.</th>
+                      <th>{isProforma ? 'Proforma No.' : 'Order No.'}</th>
                       <th>Date</th>
                       <th>Status</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {recentOrdersList.map((order) => (
-                      <tr key={order.id}>
+                    {items.map((item) => (
+                      <tr key={item.id}>
                         <td>
                           <code style={{ background: '#e2e8f0', padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 700, color: '#0f172a' }}>
-                            {getShortOrderId(order.id)}
+                            {getShortId(item.id)}
                           </code>
                         </td>
-                        <td className="admin-table__title">{order.title}</td>
-                        <td>{order.departmentHindi || order.department}</td>
+                        <td className="admin-table__title">{item.title}</td>
+                        <td>{item.departmentHindi || item.department}</td>
                         <td>
                           <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>
-                            {order.orderNumber}
+                            {isProforma ? (item.proformaNumber || '-') : item.orderNumber}
                           </code>
                         </td>
-                        <td>{order.date}</td>
+                        <td>{item.date}</td>
                         <td>
                           <span className="tag tag-green" style={{ fontSize: 11 }}>
                             Active
@@ -328,21 +409,21 @@ function AdminDashboard() {
                           <div className="admin-table__actions">
                             <button
                               className="admin-btn-action"
-                              onClick={() => handleOpenView(order)}
+                              onClick={() => handleOpenView(item)}
                               title="View"
                             >
                               View
                             </button>
                             <button
                               className="admin-btn-action"
-                              onClick={() => handleOpenEdit(order)}
+                              onClick={() => handleOpenEdit(item)}
                               title="Edit"
                             >
                               Edit
                             </button>
                             <button
                               className="admin-btn-action admin-btn-action--danger"
-                              onClick={() => handleOpenDelete(order)}
+                              onClick={() => handleOpenDelete(item)}
                               title="Delete"
                             >
                               Delete
@@ -355,10 +436,10 @@ function AdminDashboard() {
                 </table>
               </div>
 
-              {/* Server-Side Pagination Controls for Recent Orders */}
+              {/* Server-Side Pagination Controls */}
               <div className="admin-table-pagination" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: '13px', color: '#64748b' }}>
-                  Showing page {pagination.page} of {pagination.totalPages} — {pagination.total} total government orders
+                  Showing page {pagination.page} of {pagination.totalPages} — {pagination.total} total {isProforma ? 'proformas' : 'government orders'}
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <button
@@ -384,10 +465,10 @@ function AdminDashboard() {
           )}
         </div>
 
-        {/* Dynamic Analytics: Orders by Department */}
+        {/* Dynamic Analytics: By Department */}
         <div className="admin-card" style={{ padding: '18px 20px' }}>
           <h2 className="admin-card__title" style={{ marginBottom: '14px', fontSize: '15px' }}>
-            Orders by Department
+            {isProforma ? 'Proformas by Department' : 'Orders by Department'}
           </h2>
           {loading ? (
             <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -401,7 +482,7 @@ function AdminDashboard() {
                 <div key={item.dept}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px', fontWeight: 600 }}>
                     <span style={{ color: '#334155' }}>{item.dept}</span>
-                    <span style={{ color: '#64748b' }}>{item.count} orders</span>
+                    <span style={{ color: '#64748b' }}>{item.count} {isProforma ? 'proformas' : 'orders'}</span>
                   </div>
                   <div style={{ background: '#e2e8f0', borderRadius: '999px', height: '8px', overflow: 'hidden' }}>
                     <div
@@ -421,27 +502,46 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* View Modal */}
-      <GovernmentOrderView
-        isOpen={isViewOpen}
-        order={selectedOrder}
-        onClose={() => setIsViewOpen(false)}
-      />
+      {/* View Modals */}
+      {isProforma ? (
+        <EmployeeProformaView
+          isOpen={isViewOpen}
+          proforma={selectedItem}
+          onClose={() => setIsViewOpen(false)}
+        />
+      ) : (
+        <GovernmentOrderView
+          isOpen={isViewOpen}
+          order={selectedItem}
+          onClose={() => setIsViewOpen(false)}
+        />
+      )}
 
-      {/* Form Add / Edit Modal */}
-      <GovernmentOrderForm
-        isOpen={isFormOpen}
-        initialData={selectedOrder}
-        onSubmit={handleFormSubmit}
-        onClose={() => setIsFormOpen(false)}
-        loading={actionLoading}
-        apiError={formError}
-      />
+      {/* Form Add / Edit Modals */}
+      {isProforma ? (
+        <EmployeeProformaForm
+          isOpen={isFormOpen}
+          initialData={selectedItem}
+          onSubmit={handleFormSubmit}
+          onClose={() => setIsFormOpen(false)}
+          loading={actionLoading}
+          apiError={formError}
+        />
+      ) : (
+        <GovernmentOrderForm
+          isOpen={isFormOpen}
+          initialData={selectedItem}
+          onSubmit={handleFormSubmit}
+          onClose={() => setIsFormOpen(false)}
+          loading={actionLoading}
+          apiError={formError}
+        />
+      )}
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmModal
         isOpen={isDeleteOpen}
-        order={selectedOrder}
+        order={selectedItem}
         onConfirm={handleDeleteConfirm}
         onClose={() => setIsDeleteOpen(false)}
         loading={actionLoading}
