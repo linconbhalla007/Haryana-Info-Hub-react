@@ -12,12 +12,13 @@ export const siteConfig = {
   description:
     'हरियाणा सरकार से संबंधित महत्वपूर्ण नियम, निर्देश, सरकारी आदेश, नौकरियां, योजनाएं और विभागीय जानकारी एक ही स्थान पर।',
 
-  email: 'contact@haryanainfohub.example.in',
-  phone: '+91 00000 00000',
-  address: 'सेक्टर 5, पंचकूला, हरियाणा - 134109',
+  email: 'info@haryanainfohub.com',
+  phone: '+91 98123 43583',
+  address: 'Shop No 1, Circular Road, 1st Floor, Gandhi Camp, Rohtak, Haryana - 124001',
 
-  developedBy: 'GoDude Software Pvt Ltd.',
-  developedByUrl: '#',
+  developedBy: 'GoDude Software Pvt. Ltd.',
+  developedByUrl: 'https://www.godude.in',
+  developedByEmail: 'info@godude.in',
 
   facebookUrl: 'https://www.facebook.com/share/14rcxHav6Ty/',
   instagramUrl: 'https://www.instagram.com/haryana_information_hub',

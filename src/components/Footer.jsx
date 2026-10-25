@@ -6,12 +6,14 @@ import "./Footer.css";
 
 const quickLinks = [
   { to: "/", label: "मुख्य पृष्ठ" },
+  { to: "/about", label: "हमारे बारे में (About Us)" },
   { to: "/news", label: "विभागीय परीक्षा संबंधित अध्ययन सामग्री" },
   { to: "/government-orders", label: "सरकारी आदेश एवं निर्देश" },
   { to: "/jobs", label: "सरकारी भर्तियाँ एवं रोजगार जानकारी" },
   { to: "/schemes", label: "Treasury / e-Salary / HRMS संबंधित जानकारी" },
   { to: "/proforma-files", label: "सरकारी कर्मचारियों के उपयोगी प्रोफॉर्मा एवं फाइलें" },
   { to: "/departments", label: "विभाग" },
+  { to: "/privacy-policy", label: "गोपनीयता नीति एवं नियम (Privacy Policy)" },
   { to: "#footer-contact", label: "संपर्क करें" },
 ];
 
@@ -271,20 +273,50 @@ function Footer({ onDevClick }) {
             </p>
           </div>
           <div className="site-footer__meta">
+            <Link to="/privacy-policy" className="site-footer__policy-link">
+              गोपनीयता नीति एवं नियम (Privacy Policy)
+            </Link>
+            <span className="site-footer__separator">|</span>
             <span className="site-footer__version">
               संस्करण: {siteConfig.version}
             </span>
-            <span className="site-footer__separator">|</span>
-            <span className="site-footer__credit">
-              Developed by{" "}
+          </div>
+        </div>
+
+        {/* Developer Credit & Info Line */}
+        <div className="site-footer__developer-bar">
+          <div className="site-footer__developer-content footer-container">
+            <div className="site-footer__developer-brand">
+              Designed & Developed by{" "}
               <a
                 href={siteConfig.developedByUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="site-footer__developer-name"
               >
-                {siteConfig.developedBy}
+                GoDude Software Pvt. Ltd.
               </a>
-            </span>
+            </div>
+            <div className="site-footer__developer-tagline">
+              AI-powered software development · Web applications · Digital solutions
+            </div>
+            <div className="site-footer__developer-links">
+              <a
+                href={siteConfig.developedByUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="site-footer__developer-link"
+              >
+                🌐 www.godude.in
+              </a>
+              <span className="site-footer__developer-sep">|</span>
+              <a
+                href={`mailto:${siteConfig.developedByEmail || "info@godude.in"}`}
+                className="site-footer__developer-link"
+              >
+                ✉ info@godude.in
+              </a>
+            </div>
           </div>
         </div>
       </div>

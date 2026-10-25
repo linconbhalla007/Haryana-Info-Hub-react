@@ -1,0 +1,274 @@
+/* ==========================================================================
+   Privacy Policy & Terms Stylesheet
+   Matching Haryana Info Hub Brand: Navy, Haryana Green, Vibrant Saffron
+   ========================================================================== */
+
+.privacy-page {
+  background: var(--bg);
+}
+
+.privacy-hero {
+  background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-800) 100%);
+  padding: 36px 0 40px;
+  border-bottom: 3px solid var(--saffron-500);
+}
+
+.privacy-hero__badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.privacy-hero__tag {
+  background: rgba(255, 124, 0, 0.15);
+  color: var(--saffron-400);
+  border: 1px solid rgba(255, 124, 0, 0.35);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.privacy-hero__title {
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 800;
+  margin: 12px 0 10px;
+  max-width: 860px;
+}
+
+.privacy-meta-bar {
+  margin-top: 6px;
+}
+
+.privacy-updated-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.privacy-body {
+  padding-top: 36px;
+  padding-bottom: 60px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Intro Alert Card */
+.privacy-intro-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: #ffffff;
+  border: 1.5px solid var(--border);
+  border-left: 5px solid var(--saffron-500);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: var(--shadow-sm);
+}
+
+.privacy-intro-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.privacy-intro-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--navy-800);
+  margin-bottom: 8px;
+}
+
+.privacy-intro-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-700);
+  margin: 0;
+}
+
+/* Section Cards Stack */
+.privacy-sections-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 36px;
+}
+
+.privacy-section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.privacy-section-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.privacy-section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.privacy-section-num {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--navy-800), var(--navy-900));
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.privacy-section-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--navy-800);
+  margin: 0;
+}
+
+.privacy-section-content {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text-700);
+}
+
+.privacy-section-content p {
+  margin-bottom: 12px;
+}
+
+.privacy-section-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Lists inside legal content */
+.legal-list {
+  margin: 12px 0 16px 20px;
+  list-style-type: disc;
+}
+
+.legal-list li {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--text-700);
+  margin-bottom: 6px;
+}
+
+/* Highlight & Warning Callouts */
+.legal-highlight {
+  background: #f8fafc;
+  border-left: 3px solid var(--blue-500);
+  padding: 10px 14px;
+  border-radius: 4px;
+  color: var(--navy-800);
+  font-weight: 600;
+}
+
+.legal-warning {
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+  padding: 10px 14px;
+  border-radius: 4px;
+  color: #92400e;
+  font-weight: 600;
+}
+
+/* Contact box inside section 13 */
+.legal-contact-card {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.legal-contact-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+}
+
+.legal-contact-row strong {
+  color: var(--navy-800);
+  min-width: 80px;
+}
+
+.legal-contact-row a {
+  color: var(--saffron-600);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.legal-contact-row a:hover {
+  color: var(--saffron-700, #c2410c);
+}
+
+/* Brand Footer Box */
+.privacy-brand-footer {
+  background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-800) 100%);
+  border-radius: var(--radius-md);
+  padding: 28px 24px;
+  text-align: center;
+  color: #ffffff;
+  border-top: 3px solid var(--saffron-500);
+}
+
+.privacy-brand-footer__title {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.privacy-brand-footer__desc {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .privacy-hero__title {
+    font-size: 22px;
+  }
+  .privacy-intro-card {
+    flex-direction: column;
+    padding: 18px;
+  }
+  .privacy-section-card {
+    padding: 18px 16px;
+  }
+  .privacy-section-title {
+    font-size: 16px;
+  }
+}

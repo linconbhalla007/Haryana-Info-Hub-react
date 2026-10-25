@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import './Navbar.css';
 
 const primaryLinks = [
+  { to: '/about', label: 'About Us' },
   { to: '/', label: 'मुख्य पृष्ठ', end: true },
   { to: '/government-orders', label: 'सरकारी आदेश एवं निर्देश' },
   { to: '/jobs', label: 'सरकारी भर्तियाँ एवं रोजगार जानकारी' },
