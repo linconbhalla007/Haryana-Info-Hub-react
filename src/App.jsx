@@ -30,6 +30,7 @@ import AdminDashboard from './admin/pages/AdminDashboard.jsx';
 import GovernmentOrdersCMS from './admin/pages/GovernmentOrdersCMS.jsx';
 import HomepageSectionsCMS from './admin/pages/HomepageSectionsCMS.jsx';
 import EmployeeProformasCMS from './admin/pages/EmployeeProformasCMS.jsx';
+import GovernmentJobsCMS from './admin/pages/GovernmentJobsCMS.jsx';
 
 // Scrolls to top on every route change (React Router doesn't do this by default).
 function ScrollToTop() {
@@ -88,6 +89,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <EmployeeProformasCMS />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/government-jobs"
+            element={
+              <ProtectedRoute>
+                <GovernmentJobsCMS />
               </ProtectedRoute>
             }
           />

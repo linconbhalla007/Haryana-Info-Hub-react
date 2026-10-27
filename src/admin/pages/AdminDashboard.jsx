@@ -5,6 +5,8 @@ import GovernmentOrderView from '../components/GovernmentOrderView.jsx';
 import GovernmentOrderForm from '../components/GovernmentOrderForm.jsx';
 import EmployeeProformaView from '../components/EmployeeProformaView.jsx';
 import EmployeeProformaForm from '../components/EmployeeProformaForm.jsx';
+import GovernmentJobView from '../components/GovernmentJobView.jsx';
+import GovernmentJobForm from '../components/GovernmentJobForm.jsx';
 import DeleteConfirmModal from '../components/DeleteConfirmModal.jsx';
 import ToastNotification from '../components/ToastNotification.jsx';
 import {
@@ -16,15 +18,19 @@ import {
   createEmployeeProforma,
   updateEmployeeProforma,
   deleteEmployeeProforma,
+  getGovernmentJobs,
+  createGovernmentJob,
+  updateGovernmentJob,
+  deleteGovernmentJob,
 } from '../services/adminApi.js';
 
 function getShortId(id) {
   if (!id) return '-';
-  return id.replace(/^(order|proforma)-?/i, '') || id;
+  return id.replace(/^(order|proforma|job)-?/i, '') || id;
 }
 
 function AdminDashboard() {
-  // Active dashboard type: 'government_orders' | 'employee_proformas'
+  // Active dashboard type: 'government_orders' | 'employee_proformas' | 'government_jobs'
   const [dashboardType, setDashboardType] = useState('government_orders');
 
   const [items, setItems] = useState([]);
@@ -51,13 +57,20 @@ function AdminDashboard() {
   const [toast, setToast] = useState(null);
 
   const isProforma = dashboardType === 'employee_proformas';
+  const isJob = dashboardType === 'government_jobs';
 
   const fetchItems = async (pageToFetch = currentPage) => {
     setLoading(true);
     setError('');
     setItems([]);
     try {
-      const fetchApi = isProforma ? getEmployeeProformas : getGovernmentOrders;
+      let fetchApi = getGovernmentOrders;
+      if (isProforma) {
+        fetchApi = getEmployeeProformas;
+      } else if (isJob) {
+        fetchApi = getGovernmentJobs;
+      }
+
       const res = await fetchApi(pageToFetch, 5);
       setItems(res.data || []);
       const pageMeta = res.pagination || {
@@ -98,15 +111,22 @@ function AdminDashboard() {
     const departmentsSet = new Set(items.map((o) => o.department || 'Other').filter(Boolean));
     const totalDepartments = departmentsSet.size;
 
-    // Find latest date & recent count
     let latestDate = 'N/A';
+    let totalVacancies = 0;
+
     if (items.length > 0) {
       const sorted = [...items].sort((a, b) => {
-        const timeA = new Date(a.date).getTime() || 0;
-        const timeB = new Date(b.date).getTime() || 0;
+        const dateA = a.date || a.publishedDate || a.createdAt || '';
+        const dateB = b.date || b.publishedDate || b.createdAt || '';
+        const timeA = new Date(dateA).getTime() || 0;
+        const timeB = new Date(dateB).getTime() || 0;
         return timeB - timeA;
       });
-      latestDate = sorted[0].date || 'N/A';
+      latestDate = sorted[0].date || sorted[0].publishedDate || 'N/A';
+
+      if (isJob) {
+        totalVacancies = items.reduce((acc, curr) => acc + (Number(curr.vacancies) || 0), 0);
+      }
     }
 
     const recentCount = items.length;
@@ -116,8 +136,9 @@ function AdminDashboard() {
       recentCount,
       latestDate,
       totalDepartments,
+      totalVacancies,
     };
-  }, [items, pagination.total]);
+  }, [items, pagination.total, isJob]);
 
   // Department distribution for chart
   const departmentChartData = useMemo(() => {
@@ -157,7 +178,19 @@ function AdminDashboard() {
     setActionLoading(true);
     setFormError('');
     try {
-      if (isProforma) {
+      if (isJob) {
+        if (selectedItem) {
+          await updateGovernmentJob(selectedItem.id, formData);
+          setToast({ type: 'success', message: 'Government Job updated successfully!' });
+        } else {
+          const res = await createGovernmentJob(formData);
+          const newId = res?.data?.id || res?.id || res?.data?._id || '';
+          setToast({
+            type: 'success',
+            message: `Government Job created successfully! ${newId ? `(ID: ${newId})` : ''}`,
+          });
+        }
+      } else if (isProforma) {
         if (selectedItem) {
           await updateEmployeeProforma(selectedItem.id, formData);
           setToast({ type: 'success', message: 'Employee proforma updated successfully!' });
@@ -195,7 +228,10 @@ function AdminDashboard() {
     if (!selectedItem) return;
     setActionLoading(true);
     try {
-      if (isProforma) {
+      if (isJob) {
+        await deleteGovernmentJob(selectedItem.id);
+        setToast({ type: 'success', message: 'Government Job deleted successfully!' });
+      } else if (isProforma) {
         await deleteEmployeeProforma(selectedItem.id);
         setToast({ type: 'success', message: 'Employee proforma deleted successfully!' });
       } else {
@@ -217,6 +253,24 @@ function AdminDashboard() {
     }
   };
 
+  const getSectionTitle = () => {
+    if (isJob) return 'Government Jobs';
+    if (isProforma) return 'Employee Proforma';
+    return 'Government Order';
+  };
+
+  const getSectionPlural = () => {
+    if (isJob) return 'jobs';
+    if (isProforma) return 'proformas';
+    return 'orders';
+  };
+
+  const getManageAllLink = () => {
+    if (isJob) return '/admin/government-jobs';
+    if (isProforma) return '/admin/employee-proformas';
+    return '/admin/government-orders';
+  };
+
   return (
     <AdminLayout>
       <ToastNotification toast={toast} onClose={() => setToast(null)} />
@@ -224,7 +278,7 @@ function AdminDashboard() {
       <div className="admin-page-header">
         <div className="admin-page-header__info">
           <h1>
-            Dashboard Overview — {isProforma ? 'Employee Proforma' : 'Government Order'}
+            Dashboard Overview — {getSectionTitle()}
           </h1>
           <p>Real-time analytics and management summary for Haryana Info Hub.</p>
         </div>
@@ -257,6 +311,7 @@ function AdminDashboard() {
             >
               <option value="government_orders">Government Order</option>
               <option value="employee_proformas">Employee Proforma</option>
+              <option value="government_jobs">Government Jobs</option>
             </select>
             <span
               style={{
@@ -279,23 +334,25 @@ function AdminDashboard() {
       <div className="admin-stats-grid">
         <div className="admin-stat-card">
           <div className="admin-stat-card__info">
-            <h3>{isProforma ? 'Total Proformas' : 'Total Orders'}</h3>
+            <h3>{isJob ? 'Total Jobs' : isProforma ? 'Total Proformas' : 'Total Orders'}</h3>
             <div className="admin-stat-card__value">{loading ? '...' : stats.totalItems}</div>
             <div className="admin-stat-card__subtext">Live Mongo records</div>
           </div>
           <div className="admin-stat-card__icon admin-stat-card__icon--saffron">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+              <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
             </svg>
           </div>
         </div>
 
         <div className="admin-stat-card">
           <div className="admin-stat-card__info">
-            <h3>{isProforma ? 'Recent Proformas' : 'Recent Orders'}</h3>
-            <div className="admin-stat-card__value">{loading ? '...' : stats.recentCount}</div>
-            <div className="admin-stat-card__subtext">Top recent entries</div>
+            <h3>{isJob ? 'Vacancies (Recent)' : isProforma ? 'Recent Proformas' : 'Recent Orders'}</h3>
+            <div className="admin-stat-card__value">
+              {loading ? '...' : isJob ? stats.totalVacancies.toLocaleString('en-IN') : stats.recentCount}
+            </div>
+            <div className="admin-stat-card__subtext">{isJob ? 'Across recent listings' : 'Top recent entries'}</div>
           </div>
           <div className="admin-stat-card__icon admin-stat-card__icon--blue">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -307,7 +364,7 @@ function AdminDashboard() {
 
         <div className="admin-stat-card">
           <div className="admin-stat-card__info">
-            <h3>{isProforma ? 'Latest Proforma Date' : 'Latest Order Date'}</h3>
+            <h3>{isJob ? 'Latest Published Date' : isProforma ? 'Latest Proforma Date' : 'Latest Order Date'}</h3>
             <div className="admin-stat-card__value" style={{ fontSize: '18px', paddingTop: '4px' }}>
               {loading ? '...' : stats.latestDate}
             </div>
@@ -343,11 +400,11 @@ function AdminDashboard() {
         <div className="admin-card">
           <div className="admin-card__header">
             <h2 className="admin-card__title">
-              {isProforma ? 'Recent Employee Proformas' : 'Recent Government Orders'}
+              Recent {getSectionTitle()}
             </h2>
             <Link
-              to={isProforma ? '/admin/employee-proformas' : '/admin/government-orders'}
-              style={{ fontSize: '13px', color: 'var(--saffron-600)', fontWeight: 600 }}
+              to={getManageAllLink()}
+              style={{ fontSize: '13px', color: 'var(--saffron-600, #ea580c)', fontWeight: 600 }}
             >
               Manage All →
             </Link>
@@ -367,7 +424,7 @@ function AdminDashboard() {
             </div>
           ) : items.length === 0 ? (
             <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
-              {isProforma ? 'No employee proformas available.' : 'No government orders available.'}
+              No {getSectionPlural()} available.
             </div>
           ) : (
             <>
@@ -375,11 +432,20 @@ function AdminDashboard() {
                 <table className="admin-table">
                   <thead>
                     <tr>
-                      <th>{isProforma ? 'Proforma ID' : 'Order ID'}</th>
+                      <th>{isJob ? 'Job ID' : isProforma ? 'Proforma ID' : 'Order ID'}</th>
                       <th>Title</th>
                       <th>Department</th>
-                      <th>{isProforma ? 'Proforma No.' : 'Order No.'}</th>
-                      <th>Date</th>
+                      {isJob ? (
+                        <>
+                          <th>Vacancies</th>
+                          <th>Last Date</th>
+                        </>
+                      ) : (
+                        <>
+                          <th>{isProforma ? 'Proforma No.' : 'Order No.'}</th>
+                          <th>Date</th>
+                        </>
+                      )}
                       <th>Status</th>
                       <th>Actions</th>
                     </tr>
@@ -392,17 +458,46 @@ function AdminDashboard() {
                             {getShortId(item.id)}
                           </code>
                         </td>
-                        <td className="admin-table__title">{item.title}</td>
-                        <td>{item.departmentHindi || item.department}</td>
-                        <td>
-                          <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>
-                            {isProforma ? (item.proformaNumber || '-') : item.orderNumber}
-                          </code>
+                        <td className="admin-table__title">
+                          <div style={{ fontWeight: 600 }}>{item.title}</div>
                         </td>
-                        <td>{item.date}</td>
+                        <td>{item.departmentHindi || item.department}</td>
+                        {isJob ? (
+                          <>
+                            <td>
+                              <span style={{ fontWeight: 700, color: '#16a34a', fontSize: '13.5px' }}>
+                                {item.vacancies !== undefined ? item.vacancies.toLocaleString('en-IN') : '-'}
+                              </span>
+                            </td>
+                            <td>
+                              <span style={{ fontSize: '13px', fontWeight: 500, color: '#dc2626' }}>
+                                {item.lastDate}
+                              </span>
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td>
+                              <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>
+                                {isProforma ? (item.proformaNumber || '-') : item.orderNumber}
+                              </code>
+                            </td>
+                            <td>{item.date}</td>
+                          </>
+                        )}
                         <td>
-                          <span className="tag tag-green" style={{ fontSize: 11 }}>
-                            Active
+                          <span
+                            className={item.enabled !== false ? 'tag tag-green' : 'tag'}
+                            style={{
+                              fontSize: 11,
+                              background: item.enabled !== false ? '#dcfce7' : '#fee2e2',
+                              color: item.enabled !== false ? '#15803d' : '#b91c1c',
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              fontWeight: 700,
+                            }}
+                          >
+                            {item.enabled !== false ? 'Active' : 'Disabled'}
                           </span>
                         </td>
                         <td>
@@ -439,7 +534,7 @@ function AdminDashboard() {
               {/* Server-Side Pagination Controls */}
               <div className="admin-table-pagination" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: '13px', color: '#64748b' }}>
-                  Showing page {pagination.page} of {pagination.totalPages} — {pagination.total} total {isProforma ? 'proformas' : 'government orders'}
+                  Showing page {pagination.page} of {pagination.totalPages} — {pagination.total} total {getSectionPlural()}
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <button
@@ -468,7 +563,7 @@ function AdminDashboard() {
         {/* Dynamic Analytics: By Department */}
         <div className="admin-card" style={{ padding: '18px 20px' }}>
           <h2 className="admin-card__title" style={{ marginBottom: '14px', fontSize: '15px' }}>
-            {isProforma ? 'Proformas by Department' : 'Orders by Department'}
+            {getSectionTitle()} by Department
           </h2>
           {loading ? (
             <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -482,7 +577,7 @@ function AdminDashboard() {
                 <div key={item.dept}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px', fontWeight: 600 }}>
                     <span style={{ color: '#334155' }}>{item.dept}</span>
-                    <span style={{ color: '#64748b' }}>{item.count} {isProforma ? 'proformas' : 'orders'}</span>
+                    <span style={{ color: '#64748b' }}>{item.count} {getSectionPlural()}</span>
                   </div>
                   <div style={{ background: '#e2e8f0', borderRadius: '999px', height: '8px', overflow: 'hidden' }}>
                     <div
@@ -503,7 +598,13 @@ function AdminDashboard() {
       </div>
 
       {/* View Modals */}
-      {isProforma ? (
+      {isJob ? (
+        <GovernmentJobView
+          isOpen={isViewOpen}
+          job={selectedItem}
+          onClose={() => setIsViewOpen(false)}
+        />
+      ) : isProforma ? (
         <EmployeeProformaView
           isOpen={isViewOpen}
           proforma={selectedItem}
@@ -518,7 +619,16 @@ function AdminDashboard() {
       )}
 
       {/* Form Add / Edit Modals */}
-      {isProforma ? (
+      {isJob ? (
+        <GovernmentJobForm
+          isOpen={isFormOpen}
+          initialData={selectedItem}
+          onSubmit={handleFormSubmit}
+          onClose={() => setIsFormOpen(false)}
+          loading={actionLoading}
+          apiError={formError}
+        />
+      ) : isProforma ? (
         <EmployeeProformaForm
           isOpen={isFormOpen}
           initialData={selectedItem}

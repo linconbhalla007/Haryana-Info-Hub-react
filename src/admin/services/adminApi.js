@@ -404,8 +404,104 @@ export async function deleteEmployeeProforma(id) {
   });
 }
 
-export default {
+/**
+ * 16. Get Government Jobs with server-side pagination
+ * GET /api/jobs?page=1&limit=10
+ */
+export async function getGovernmentJobs(page = 1, limit = 10, enabled = undefined) {
+  let url = `/api/jobs?page=${page}&limit=${limit}`;
+  if (enabled !== undefined) {
+    url += `&enabled=${enabled}`;
+  }
 
+  const result = await apiFetch(url, { method: "GET" });
+
+  if (result && Array.isArray(result.data) && result.pagination) {
+    return {
+      data: result.data,
+      pagination: result.pagination,
+      count: result.count || result.data.length,
+      success: result.success !== false,
+    };
+  }
+
+  if (Array.isArray(result)) {
+    const total = result.length;
+    const totalPages = Math.ceil(total / limit) || 1;
+    const currPage = Number(page);
+    const start = (currPage - 1) * limit;
+    return {
+      data: result.slice(start, start + limit),
+      pagination: {
+        page: currPage,
+        limit: Number(limit),
+        total,
+        totalPages,
+        hasNextPage: currPage < totalPages,
+        hasPreviousPage: currPage > 1,
+      },
+      count: total,
+      success: true,
+    };
+  }
+
+  return {
+    data: [],
+    pagination: { page: Number(page), limit: Number(limit), total: 0, totalPages: 1, hasNextPage: false, hasPreviousPage: false },
+    count: 0,
+    success: true,
+  };
+}
+
+/**
+ * 17. Get Single Government Job
+ * GET /api/jobs/:id
+ */
+export async function getGovernmentJob(id) {
+  const result = await apiFetch(`/api/jobs/${encodeURIComponent(id)}`, {
+    method: "GET",
+  });
+
+  if (result && result.job) return result.job;
+  if (result && result.data) return result.data;
+  return result;
+}
+
+/**
+ * 18. Create Government Job
+ * POST /api/jobs (multipart/form-data)
+ */
+export async function createGovernmentJob(jobData) {
+  const isFormData = typeof FormData !== "undefined" && jobData instanceof FormData;
+  return await apiFetch("/api/jobs", {
+    method: "POST",
+    body: isFormData ? jobData : JSON.stringify(jobData),
+  });
+}
+
+/**
+ * 19. Update Government Job
+ * PUT /api/jobs/:id
+ */
+export async function updateGovernmentJob(id, jobData) {
+  const isFormData = typeof FormData !== "undefined" && jobData instanceof FormData;
+  return await apiFetch(`/api/jobs/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: isFormData ? jobData : JSON.stringify(jobData),
+  });
+}
+
+/**
+ * 20. Delete Government Job
+ * DELETE /api/jobs/:id
+ */
+export async function deleteGovernmentJob(id) {
+  return await apiFetch(`/api/jobs/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
+export default {
   loginAdmin,
   getGovernmentOrders,
   getGovernmentOrder,
@@ -422,5 +518,10 @@ export default {
   createEmployeeProforma,
   updateEmployeeProforma,
   deleteEmployeeProforma,
+  getGovernmentJobs,
+  getGovernmentJob,
+  createGovernmentJob,
+  updateGovernmentJob,
+  deleteGovernmentJob,
 };
 
