@@ -228,9 +228,6 @@ export function LatestUpdatesBar({ initialItems = null }) {
             }}
           >
             <span className="latest-updates-title">{currentItem.title}</span>
-            {currentItem.description && (
-              <span className="latest-updates-desc">— {currentItem.description}</span>
-            )}
           </button>
         </div>
 

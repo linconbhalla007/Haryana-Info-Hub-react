@@ -35,7 +35,7 @@ function Footer({ onDevClick }) {
 
   return (
     <footer className="site-footer">
-      {/* Accent strip: Green -> White -> Orange */}
+      {/* Accent strip: Orange -> White -> Green */}
       <div className="footer-accent-strip" />
 
       <div className="site-footer__grid footer-container footer-main">
@@ -44,10 +44,13 @@ function Footer({ onDevClick }) {
           <Link to="/" className="site-footer__logo-link footer-logo">
             <Logo variant="footer" />
           </Link>
-          <h3 className="site-footer__brand-title footer-brand-title">
-            हरियाणा सरकार के{" "}
-            <span className="highlight-orange">नियम व निर्देश</span>
-          </h3>
+          <div className="site-footer__brand-group">
+            <span className="site-footer__brand-name">Haryana Information Hub</span>
+            <h3 className="site-footer__brand-title footer-brand-title">
+              हरियाणा सरकार के{" "}
+              <span className="highlight-orange">नियम व निर्देश</span>
+            </h3>
+          </div>
           <div className="site-footer__deco-line" />
           <p className="site-footer__desc footer-description">
             {siteConfig.description}

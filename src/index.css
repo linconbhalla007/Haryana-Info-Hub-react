@@ -124,18 +124,18 @@ img {
 
 /* Tricolor signature strip — used as a quiet divider that nods to trust
    and public service without being flashy. Appears under the header and
-   above the footer. */
+   above the footer. (Order: Orange / Saffron -> White -> Green) */
 .tricolor-strip {
   height: 4px;
   width: 100%;
   background: linear-gradient(
     90deg,
-    var(--green-600) 0%,
-    var(--green-600) 33.3%,
+    var(--saffron-500) 0%,
+    var(--saffron-500) 33.3%,
     var(--white) 33.3%,
     var(--white) 66.6%,
-    var(--saffron-500) 66.6%,
-    var(--saffron-500) 100%
+    var(--green-600) 66.6%,
+    var(--green-600) 100%
   );
 }
 

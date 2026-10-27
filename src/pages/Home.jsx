@@ -85,7 +85,17 @@ function Home({ onDevClick }) {
             icon={<JobIcon />}
           />
 
-          {/* Card 3: Treasury / E-Salary / HRMS Info (Order 3) */}
+          {/* Card 3: Useful Employee Forms & Files (Order 3) */}
+          <SectionCard
+            to="/proforma-files"
+            accent="green"
+            title="सरकारी कर्मचारियों के उपयोगी प्रोफॉर्मा एवं फाइलें"
+            items={["Medical Reimbursement", "LTC (Leave Travel Concession)", "GPF / NPS विवरण", "Pension फॉर्म एवं नियम"]}
+            buttonLabel="View Proformas"
+            icon={<FileIcon />}
+          />
+
+          {/* Card 4: Treasury / E-Salary / HRMS Info (Order 4) */}
           <SectionCard
             to="/schemes"
             accent="navy"
@@ -94,16 +104,6 @@ function Home({ onDevClick }) {
             buttonLabel="View HRMS Info"
             icon={<SchemeIcon />}
             onClick={() => onDevClick && onDevClick("Treasury / e-Salary / HRMS संबंधित जानकारी")}
-          />
-
-          {/* Card 4: Useful Employee Forms & Files (Order 4) */}
-          <SectionCard
-            to="/proforma-files"
-            accent="green"
-            title="सरकारी कर्मचारियों के उपयोगी प्रोफॉर्मा एवं फाइलें"
-            items={["Medical Reimbursement", "LTC (Leave Travel Concession)", "GPF / NPS विवरण", "Pension फॉर्म एवं नियम"]}
-            buttonLabel="View Proformas"
-            icon={<FileIcon />}
           />
 
           {/* Card 5: Departmental Exams Study Material (Order 5) */}
@@ -117,7 +117,7 @@ function Home({ onDevClick }) {
             onClick={() => onDevClick && onDevClick("विभागीय परीक्षा संबंधित अध्ययन सामग्री")}
           />
 
-          {/* Card 6: HSSC Exam Study Material (Order 6 - New) */}
+          {/* Card 6: HSSC Exam Study Material (Order 6) */}
           <SectionCard
             to="/hssc-study-material"
             accent="saffron"
