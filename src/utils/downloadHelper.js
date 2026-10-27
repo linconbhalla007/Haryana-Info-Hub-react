@@ -187,6 +187,86 @@ export async function downloadProformaPdf(proformaId, proformaTitle = 'employee-
 }
 
 /**
+ * Downloads a government job notification PDF using the dedicated API endpoint:
+ * GET ${API_BASE_URL}/api/download-job/:id
+ *
+ * Headers returned by API:
+ * - Content-Type: application/pdf
+ * - Content-Disposition: attachment; filename="<Job Title>.pdf"
+ * - Access-Control-Allow-Origin: *
+ *
+ * @param {string} jobId - e.g. "job-001"
+ * @param {string} [jobTitle] - Optional title for filename fallback
+ * @param {string} [fallbackPdfUrl] - Optional direct R2/CDN URL fallback
+ */
+export async function downloadJobPdf(jobId, jobTitle = 'government-job', fallbackPdfUrl = null) {
+  if (!jobId && !fallbackPdfUrl) {
+    throw new Error('भर्ती आईडी या PDF लिंक मौजूद नहीं है।');
+  }
+
+  const endpointUrl = jobId
+    ? `${API_BASE_URL}/api/download-job/${encodeURIComponent(jobId)}`
+    : fallbackPdfUrl;
+
+  const safeTitle = (jobTitle || 'government-job')
+    .replace(/[/\\?%*:|"<>]/g, '-')
+    .trim();
+  let filename = `${safeTitle}.pdf`;
+
+  let response;
+  try {
+    response = await fetch(endpointUrl, {
+      method: 'GET',
+      mode: 'cors',
+    });
+  } catch (netErr) {
+    if (fallbackPdfUrl && fallbackPdfUrl !== endpointUrl) {
+      try {
+        response = await fetch(fallbackPdfUrl, { method: 'GET', mode: 'cors' });
+      } catch {
+        throw new Error('नेटवर्क त्रुटि: सर्वर से कनेक्ट करने में असमर्थ।');
+      }
+    } else {
+      throw new Error('नेटवर्क त्रुटि: डाउनलोड सर्वर से कनेक्ट नहीं हो सका।');
+    }
+  }
+
+  const contentType = (response.headers.get('content-type') || '').toLowerCase();
+  if (!response.ok || contentType.includes('application/json')) {
+    let errMsg = 'PDF डाउनलोड करने में असमर्थ।';
+    try {
+      const data = await response.json();
+      if (data && data.message) errMsg = data.message;
+    } catch {}
+
+    if (fallbackPdfUrl && fallbackPdfUrl !== endpointUrl) {
+      try {
+        const fbRes = await fetch(fallbackPdfUrl, { method: 'GET', mode: 'cors' });
+        if (fbRes.ok && (fbRes.headers.get('content-type') || '').includes('application/pdf')) {
+          const blob = await fbRes.blob();
+          triggerBlobDownload(blob, filename);
+          return;
+        }
+      } catch {}
+    }
+
+    throw new Error(errMsg || 'PDF फ़ाइल उपलब्ध नहीं है या डाउनलोड विफल रहा।');
+  }
+
+  const disposition = response.headers.get('content-disposition');
+  if (disposition && disposition.includes('filename=')) {
+    const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      const parsed = match[1].replace(/['"]/g, '').trim();
+      if (parsed) filename = parsed;
+    }
+  }
+
+  const blob = await response.blob();
+  triggerBlobDownload(blob, filename);
+}
+
+/**
  * General file download utility for backward compatibility
  */
 export async function downloadFile(url, defaultFilename = 'haryana-government-order.pdf') {
@@ -196,5 +276,6 @@ export async function downloadFile(url, defaultFilename = 'haryana-government-or
 export default {
   downloadOrderPdf,
   downloadProformaPdf,
+  downloadJobPdf,
   downloadFile,
 };
