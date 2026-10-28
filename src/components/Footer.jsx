@@ -232,7 +232,7 @@ function Footer({ onDevClick }) {
               <div className="site-footer__contact-text">
                 <span className="site-footer__label">हेल्पलाइन नंबर</span>
                 <a
-                  href={`tel:${siteConfig.phone}`}
+                  href={`tel:${siteConfig.phone.replace(/\s+/g, '')}`}
                   className="site-footer__interactive-link"
                 >
                   {siteConfig.phone}

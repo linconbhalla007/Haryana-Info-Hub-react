@@ -13,7 +13,7 @@ export const siteConfig = {
     'हरियाणा सरकार से संबंधित महत्वपूर्ण नियम, निर्देश, सरकारी आदेश, नौकरियां, योजनाएं और विभागीय जानकारी एक ही स्थान पर।',
 
   email: 'info@haryanainfohub.com',
-  phone: '+91 98123 43583',
+  phone: '+91 89508 95084',
   address: 'Shop No 1, Circular Road, 1st Floor, Gandhi Camp, Rohtak, Haryana - 124001',
 
   developedBy: 'GoDude Software Pvt. Ltd.',

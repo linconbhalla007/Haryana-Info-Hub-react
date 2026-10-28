@@ -520,34 +520,62 @@
   }
 }
 
-/* Technology Partner Subtle Bottom Note */
-.about-tech-partner {
-  margin-top: 40px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border-color);
-  text-align: center;
-  color: var(--text-600);
-  font-size: 13.5px;
-  line-height: 1.6;
+/* Technology Partner & Support Card */
+.about-tech-card {
+  margin-top: 36px;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--saffron-500);
+  border-radius: var(--radius-md, 10px);
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.about-tech-partner__lead {
-  margin: 0 0 8px;
-  font-size: 13.5px;
-  color: var(--text-600);
+.about-tech-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
-.about-tech-partner__meta {
+.about-tech-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 124, 0, 0.12);
+  color: var(--saffron-600);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  font-size: 13px;
-  color: var(--text-500);
+  flex-shrink: 0;
 }
 
-.about-tech-partner__link {
+.about-tech-card__heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy-800);
+  margin: 0;
+}
+
+.about-tech-card__desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-600);
+  margin: 0 0 12px 0;
+}
+
+.about-tech-card__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--text-500);
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.about-tech-card__link {
   color: var(--navy-800);
   font-weight: 600;
   text-decoration: underline;
@@ -555,20 +583,24 @@
   transition: color 0.15s ease;
 }
 
-.about-tech-partner__link:hover {
+.about-tech-card__link:hover {
   color: var(--saffron-600);
 }
 
-.about-tech-partner__sep {
+.about-tech-card__sep {
   color: var(--text-400);
 }
 
 @media (max-width: 640px) {
-  .about-tech-partner__meta {
-    flex-direction: column;
-    gap: 4px;
+  .about-tech-card {
+    padding: 16px 18px;
   }
-  .about-tech-partner__sep {
+  .about-tech-card__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .about-tech-card__sep {
     display: none;
   }
 }

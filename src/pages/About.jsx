@@ -270,41 +270,55 @@ function About() {
           </div>
         </div>
 
-        {/* Technology Partner - Simple subtle note at the very bottom */}
-        <div className="about-tech-partner">
-          <p className="about-tech-partner__lead">
+        {/* Technology Partner & Support Card */}
+        <div className="about-tech-card">
+          <div className="about-tech-card__header">
+            <div className="about-tech-card__icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
+              </svg>
+            </div>
+            <div>
+              <span className="eyebrow" style={{ fontSize: '11px', letterSpacing: '0.04em', margin: 0 }}>
+                Digital Innovation &amp; Architecture
+              </span>
+              <h3 className="about-tech-card__heading">Technology Partner &amp; Support</h3>
+            </div>
+          </div>
+          <p className="about-tech-card__desc">
             We build modern web applications and AI-powered digital solutions to make information more accessible and easier to use.
           </p>
-          <div className="about-tech-partner__meta">
+          <div className="about-tech-card__meta">
             <span>
-              Technology Partner:{" "}
+              Technology Partner:{' '}
               <a
                 href="https://www.godude.in"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="about-tech-partner__link"
+                className="about-tech-card__link"
               >
                 GoDude Software
               </a>
             </span>
-            <span className="about-tech-partner__sep">•</span>
+            <span className="about-tech-card__sep">•</span>
             <span>
-              Website:{" "}
+              Website:{' '}
               <a
                 href="https://www.godude.in"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="about-tech-partner__link"
+                className="about-tech-card__link"
               >
                 https://www.godude.in
               </a>
             </span>
-            <span className="about-tech-partner__sep">•</span>
+            <span className="about-tech-card__sep">•</span>
             <span>
-              Email:{" "}
+              Email:{' '}
               <a
                 href="mailto:info@godude.in"
-                className="about-tech-partner__link"
+                className="about-tech-card__link"
               >
                 info@godude.in
               </a>
